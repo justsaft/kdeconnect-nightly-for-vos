@@ -44,23 +44,27 @@ jobs:
         run: |
           cat << 'EOF' > kdesrc-buildrc
           global
+              set-env MAKEFLAGS -j${num-cores}
               source-dir /opt/kde/src
               build-dir /opt/kde/build
               install-dir /opt/kde/usr
               cmake-generator Ninja
-              make-options -j$(nproc)
+              cmake-options -DCMAKE_BUILD_TYPE=Release -DBUILD_PYTHON_BINDINGS=OFF
               branch-group kf6-qt6
-              stop-on-failure true
+              do-not-compile python
+          end global
 
-          module-set kdeconnect-stack
-              use-modules kdeconnect-kde
+          module kdeconnect-kde
+              repository kdeconnect-kde
+              include-dependencies true
+          end module
           EOF
 
       # -------------------------
       # Build KDE Connect
       - name: Build KDE Connect (nightly)
         run: |
-          kdesrc-build --include-dependencies kdeconnect-kde
+          kdesrc-build --include-dependencie --reconfigure --async kdeconnect-kde
           ldd kdeconnect-kde > /opt/kdeconnect.txt
 
       # -------------------------
