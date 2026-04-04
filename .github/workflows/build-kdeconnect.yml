@@ -1,0 +1,90 @@
+name: Build KDE Connect (Nightly)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    container:
+      image: ghcr.io/justsaft/vanilla-ci-building
+
+    env:
+      DEBIAN_FRONTEND: noninteractive
+      KDE_SRC: /opt/kde/src
+      KDE_BUILD: /opt/kde/build
+      KDE_INSTALL: /opt/kde/usr
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      # -------------------------
+      # Cache KDE sources + build
+      - name: Restore KDE cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            /opt/kde/src
+            /opt/kde/build
+          key: kde-${{ runner.os }}-${{ hashFiles('kdesrc-buildrc') }}
+          restore-keys: |
+            kde-${{ runner.os }}-
+
+      # -------------------------
+      # Setup kdesrc-build
+      - name: Setup kdesrc-build
+        run: |
+          echo "/usr/kdesrc-build" >> $GITHUB_PATH
+
+      # -------------------------
+      # Write kdesrc-build config
+      - name: Create config
+        run: |
+          cat << 'EOF' > kdesrc-buildrc
+          global
+              source-dir /opt/kde/src
+              build-dir /opt/kde/build
+              install-dir /opt/kde/usr
+              cmake-generator Ninja
+              make-options -j$(nproc)
+              branch-group kf6-qt6
+              stop-on-failure true
+
+          module-set kdeconnect-stack
+              use-modules kdeconnect-kde
+          EOF
+
+      # -------------------------
+      # Build KDE Connect
+      - name: Build KDE Connect (nightly)
+        run: |
+          kdesrc-build --include-dependencies kdeconnect-kde
+          ldd kdeconnect-kde > /opt/kdeconnect.txt
+
+      # -------------------------
+      # Package artifact
+      - name: Package install dir
+        run: |
+          tar -czf kdeconnect-nightly.tar.gz -C /opt/kde/usr .
+
+      # -------------------------
+      # Upload artifact
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: kdeconnect-nightly
+          path: |
+            kdeconnect-nightly.tar.gz
+            /opt/kdeconnect.txt
+
+      # -------------------------
+      # Save updated cache
+      - name: Save KDE cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            /opt/kde/src
+            /opt/kde/build
+          key: kde-${{ runner.os }}-${{ github.run_id }}
