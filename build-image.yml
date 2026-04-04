@@ -4,7 +4,7 @@ vibversion: 1.0.7
 
 stages:
 - id: build
-  base: ghcr.io/vanilla-os/core:dev
+  base: ghcr.io/vanilla-os/desktop:main
   singlelayer: false
   labels:
     maintainer: JustSaft
@@ -18,32 +18,8 @@ stages:
   - name: init-setup
     type: shell
     commands:
-    - echo 'PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games"' > /etc/environment
-    - sed -i '4,10d' /etc/profile
-    - apt update
-    - apt upgrade -y
-    - apt clean
-    - apt-mark hold snapd gnome-software-plugin-snap
-    - apt -y install squashfs-tools minisign
-
-  - name: vanilla-tools
-    type: shell
-    source:
-      type: tar
-      url: https://github.com/Vanilla-OS/vanilla-tools/releases/download/v1.0.0/vanilla-tools.tar.gz
-      checksum: 0e1d92d9c9154f9a115e97b40ff692afa52ddd0d9f770a8ec67440bf1a48aa72
-    commands:
-    - mkdir -p /usr/bin
-    - cp /sources/vanilla-tools/vanilla-tools/lpkg /usr/bin/lpkg
-    - cp /sources/vanilla-tools/vanilla-tools/cur-gpu /usr/bin/cur-gpu
-    - chmod +x /usr/bin/lpkg
-    - chmod +x /usr/bin/cur-gpu
-
-  - name: apx-vso-pico-shutdown-service
-    type: shell
-    commands:
-    - mkdir -p /etc/systemd/user/graphical-session.target.wants/
-    - ln -s /etc/systemd/user/apx-vso-pico.service /etc/systemd/user/graphical-session.target.wants/
+      - lpkg --unlock
+      - apt-get update
 
   - name: includes
     type: includes
