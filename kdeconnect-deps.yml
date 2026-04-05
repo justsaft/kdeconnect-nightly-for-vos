@@ -1,6 +1,7 @@
 name: kdesrc-build-install
 type: shell
 commands:
+  - ln -s /usr/bin/qmake6 /usr/bin/qmake
   - git clone --depth=1 https://invent.kde.org/sdk/kdesrc-build.git /usr/kdesrc-build
   - cd /usr/kdesrc-build
   - ./kdesrc-build --initial-setup
@@ -11,6 +12,8 @@ modules:
   sources:
     - packages:
       - git
+      - calc
+      - qmake6
       - cmake
       - ninja-build
       - build-essential
