@@ -65,8 +65,9 @@ jobs:
       # Build KDE Connect
       - name: Build KDE Connect (nightly)
         run: |
-          kdesrc-build --generate-config --include-dependencies --reconfigure --async kdeconnect-kde
-          ldd kdeconnect-kde > /opt/kdeconnect.txt
+          kdesrc-build --generate-config
+          kdesrc-build --include-dependencies --reconfigure --async kdeconnect-kde
+          ldd /opt/kde/usr/kdeconnect-kde > /opt/kdeconnect.txt
 
       # -------------------------
       # Package artifact
