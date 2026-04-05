@@ -41,6 +41,7 @@ jobs:
       # -------------------------
       # Write kdesrc-build config
       - name: Create config
+        if: false
         run: |
           cat << 'EOF' > kdesrc-buildrc
           global
@@ -64,7 +65,7 @@ jobs:
       # Build KDE Connect
       - name: Build KDE Connect (nightly)
         run: |
-          kdesrc-build --include-dependencie --reconfigure --async kdeconnect-kde
+          kdesrc-build --generate-config --include-dependencies --reconfigure --async kdeconnect-kde
           ldd kdeconnect-kde > /opt/kdeconnect.txt
 
       # -------------------------
