@@ -6,6 +6,7 @@ stages:
 - id: build
   base: ghcr.io/vanilla-os/desktop:main
   singlelayer: false
+  addincludes: true
   labels:
     maintainer: JustSaft
   args:
